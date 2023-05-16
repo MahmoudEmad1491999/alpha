@@ -1,287 +1,226 @@
-#include "Tree.h"
 #include "BST.h"
 #include "HelperFuncs.h"
 #include "Macros.h"
 
-struct TreeNode* makeBST(void* data)
+struct BstNode* makeBSTNode(void* data)
 {
-    struct TreeNode* bst = makeTreeNode(NULL, data, 2);
-    return bst;
+    struct BstNode* root = xmalloc(sizeof(struct BstNode));
+    root->parent = NULL;
+    root->data = data;
+    root->children[0] = NULL;
+    root->children[1] = NULL;
+    return root;
 }
 
-void addElementToBST(struct TreeNode *bst, void *data, int8_t (*compare)(void *, void *))
+void addElementToBST(struct BstNode *bst, void *data, int8_t (*compare)(void *, void *))
 {
     // first we need to check if the given binary search tree pointer is not null.
     FAIL_IF_NULL(bst);
-    // create a new node with the parent set to NULL temporarily.
-    struct TreeNode* newNode = makeTreeNode(NULL, data, 2);
-    // found flag is zero until we find the position to insert the new node.
-    int8_t notFound = 1;
-    // we will use the bst as a current node when searching for the position to insert to.
-    while(notFound)
+    
+    // compare the given data to the data payload of bst. 
+    int8_t compare_result = compare(data, bst->data);
+    
+    if(compare_result == 1)
     {
-        // compare the data payload of to be added node with the current node, i.e. bst.
-        if(compare(data,bst->data) > 0)    
-        { // if the comparision result is bigger than 0 this mean the new node will be in
-          // in the right subtree of the current node.
-            
-            if(bst->children[1] != NULL) {
-                // if the current right subtree is not null,
-                // this mean we have to search it, and the not found is still 1.
-                bst = bst->children[1];
-                notFound = 1;
-            }
-            else
-            {
-                // if the current right subtree is NULL basically set current 
-                // right subtree to the new node and the new node parent to current.
-                // and set not found = 0 to stop looping.
-                newNode->parent = bst;
-                bst->children[1] = newNode;
-                notFound = 0;        
-            }
+        // if the compare result is 1, this means that the new data is going to
+        // be in a node on the right subtree of bst.
+
+        if(bst->children[1]) // if the right child is present.
+        {
+            addElementToBST(bst->children[1], data, compare);
         }
-        else if(compare(data,bst->data) < 0)    
-        { 
-            // if the comparision result is less than 0 this mean the new node will be in
-            // in the left subtree of the current node.
-            if(bst->children[0] != NULL) {
-                // if the current left subtree is not null,
-                // this mean we have to search it, and the not found is still 1.
-                bst = bst->children[0];
-                notFound = 1;
-            }
-            else
-            {
-                // if the current right subtree is NULL basically set current 
-                // left subtree to the new node and the new node parent to current.
-                // and set not found = 0 to stop looping.
-                newNode->parent = bst;
-                bst->children[0] = newNode;
-                notFound = 0;        
-            }
+        else // if the right child is not present.
+        {
+            struct BstNode* new_node = makeBSTNode(data);
+            new_node->parent = bst;
+            bst->children[1] = new_node;
         }
     }
+    else if(compare_result == -1)
+    {
+        // if the compare result is -1, this means that the new data is going to
+        // be in a node on the left subtree of bst.
+
+        if(bst->children[0]) // if the right child is present.
+        {
+            addElementToBST(bst->children[0], data, compare);
+        }
+        else // if the right child is not present.
+        {
+            struct BstNode* new_node = makeBSTNode(data);
+            new_node->parent = bst;
+            bst->children[0] = new_node;
+        }
+    } else {
+        // this means compare result is zero and bst is actually holding data payload equvilant to the given data.
+        // so return.
+        return; 
+    }
+    
 }
 
-struct TreeNode* searchElementBST(struct TreeNode *bst, void *data, int8_t (*compare)(void* data1, void* data2))
+struct BstNode* searchElementBST(struct BstNode *bst, void *data, int8_t (*compare)(void* data1, void* data2))
 {
     // there is no meaning in searching a null binary search tree.
+    // but this does not mean that we cannot return NULL.
     FAIL_IF_NULL(bst);
-    
-    // we are going to use bst as a current node indicator,
-    // instead of just the head of the binary tree.
-    // this variable is used to track the searched item found or not.
-    int8_t notFound = 1;
-    // loop until you find or have a dead end.
-    while(notFound)
+    int8_t compare_result = compare(data, bst->data);
+    if(compare_result == 1)
     {
-        // compare the data with the current node if it's greater than 0,
-        // then that mean that the searched node is not in the left sub tree.
-        // and mean that the searched data may be in the right sub tree.
-        if(compare( data, bst->data) > 0)
+        // this means that data is going be on the right subtree of bst.
+        if(bst->children[1])
         {
-            // if the right sub tree is not null set current to it and loop againe.
-            if(bst->children[1] != NULL)
-            {
-                bst = bst->children[0];
-                notFound = 1;
-            }
-            // if the right sub tree is NULL return NULL.
-            else 
-            {
-                return NULL;
-            }
+            searchElementBST(bst->children[1],data, compare);
         }
-        // if the data is less than the data at current,
-        // then the data element is not in the right subtree, and may be
-        // in the left subtree
-        else if(compare(data, bst->data) < 0)
-        {
-            // if the left subtree is not null search it by looping againe, and setting 
-            // current to the left subtree.
-            if(bst->children[0] != NULL)
-            {
-                bst = bst->children[0];
-                notFound = 1;
-            }
-            // if the left subtree is NULL return NULL as the element is not found.
-            else
-            {
-                return NULL;
-            }
-        }
-        // if the data is not less than the data of current,
-        // and the data is not greater than current,
-        // then it must be equal.
-        else
-        {
-            // set not found to 0 as it is the current node that match the given data.
-            notFound = 0;
+        else {
+            return NULL;
         }
     }
-    return bst;
+    else if(compare_result == -1)
+    {
+        // this means that data is going be on the left subtree of bst.
+        if(bst->children[0])
+        {
+            searchElementBST(bst->children[0],data, compare);
+        }
+        else {
+            return NULL;
+        }
+    }
+    else {
+        return bst;
+    }
+    return NULL;
 }
 
 
 // deleting a non present data from a tree is not gonna cause an error.
-void deleteElementFromBST(struct TreeNode *bst, void *data, int8_t (*compare)(void *, void *))
+void deleteElementFromBST(struct BstNode *bst, void *data, int8_t (*compare)(void *, void *), int8_t mode, void (*custom_free)(void* data))
 {
-    // there is no point of performing a delete operation on a null DS.
-    FAIL_IF_NULL(bst);
-    
-    // this flag represent the state of searching for the to be deleted node.
-    int8_t notFound = 1;
-    // this pointer is gonna point to the node that hold the data to be deleted,
-    // or null if it's not found.
-    struct TreeNode* toBeDeleted = NULL;
-   
-    // loop until you find the node or reach a dead end.
-    // we are gonna use @bst as a current node indicator instead of the head of the bst.
-    while(notFound)
-    {
-        // compare the data payload of both the given data and current node.
-        // if it's >0 this means if the deleted node is present, it's gonna be
-        // in the right subtree.
-        if(compare( data, bst->data) > 0)
-        {
-            // if the right subtree is null this mean the to be deleted node is not 
-            // present in the tree, so break and return.
-            if (bst->children[1] == NULL)
-            {
-                toBeDeleted = NULL;
-                break;
-            }
-            else
-            {
-                // if the right subtree is not null set current to it and set not found to 1
-                // so that it can loop and retest.
-                bst = bst->children[1];
-                notFound = 1;
-            }
-        }
-        // if it's <0 this means if the deleted node is present, it's gonna be
-        // in the left subtree.
-        else if(compare(data, bst->data) < 0)
-        {
-            // if the left subtree is null this means that the to be deleted node is not
-            // in the tree as a whole so break and return. 
-            if(bst->children[0] != NULL)
-            {
-                toBeDeleted = NULL;
-                break;
-            }
-            else
-            {
-                // if the left subtree is not null set current to it and notfound = 1 so
-                // it can loop and retest.
-                bst = bst->children[0];
-                notFound = 1;
-            }
-        }
-        // if the data payload of the to be deleted node is equal to current then
-        // current is the toBeDeleted Node.
-        else
-        {
-            // set notFound = 0 so the looping stops.
-            notFound = 0;
-            // set the to be deleted node to the current "bst".
-            toBeDeleted = bst;
-        }
-    }
+    struct BstNode *toBeDeleted = searchElementBST(bst, data, compare);
 
-    // after looping the to be deleted node is gonna be either NULL or pointing the the to be deleted
-    // node.
-    if(toBeDeleted)
-    {
-        // if the toBeDeleted has no children.
-        if(toBeDeleted->children[0] == NULL && toBeDeleted->children[1] == NULL)
-        {
-            free(toBeDeleted->data);
-            free(toBeDeleted->children);
+    // check if the data is present in the tree.
+    if (toBeDeleted) {
+        // check if the node that contain the data is a leaf node .
+        if (toBeDeleted->children[0] == NULL &&
+            toBeDeleted->children[1] == NULL) 
+        { 
+            // is a leaf node, so we just delete it and set it's parent is zero.
+            // if it's the left child of it's parent.
+            if(toBeDeleted->parent->children[0] == toBeDeleted) toBeDeleted->parent->children[0] = NULL;
+            // if it's the right child of it's parent.
+            else if(toBeDeleted->parent->children[1] == toBeDeleted) toBeDeleted->parent->children[1] = NULL;
+            // free the data payload of the node.
+            custom_free(data);
+            // free the node data structure.
             free(toBeDeleted);
         }
-        // if the toBeDeleted has one right subtree.
-        else if(toBeDeleted->children[1] != NULL)
+        else if(toBeDeleted->children[0] != NULL && toBeDeleted->children[1] == NULL)
         {
-            struct TreeNode* temp = toBeDeleted->children[1];
-            temp->parent = toBeDeleted->parent;
-            // if the toBeDeleted node is the left child of it's parent then,
-            // the right subtree of the toBeDeleted is going to be the left subtree of it's parent.
-            if(toBeDeleted == toBeDeleted->parent->children[0])
-            {
-                toBeDeleted->parent->children[0] = temp;
-            }
-            // if the toBeDeleted node is the right child of it's parent then,
-            // the right subtree of the toBeDeleted is going to be the right subtree of it's parent.
-            else 
-            {
-                toBeDeleted->parent->children[1] = temp;
-            }
-
-            free(toBeDeleted->data);
-            free(toBeDeleted->children);
+            // it's a lefty node that it has only the left child but not the right one.
+            // if it's the left child of it's parent.
+            if(toBeDeleted->parent->children[0] == toBeDeleted) toBeDeleted->parent->children[0] = toBeDeleted->children[0];
+            // if it's the right child of it's parent.
+            else if(toBeDeleted->parent->children[1] == toBeDeleted) toBeDeleted->parent->children[1] = toBeDeleted->children[1];
+            
+            // free the data payload of the node.
+            custom_free(data);
+            // free the node data structure.
             free(toBeDeleted);
+
         }
-        // if the toBeDeleted has one left subtree.
-        else if(toBeDeleted->children[0] != NULL)
+        else if(toBeDeleted->children[0] == NULL && toBeDeleted->children[1] != NULL)
         {
-            struct TreeNode* temp = toBeDeleted->children[0];
-            temp->parent = toBeDeleted->parent;
-            // if the toBeDeleted node is the left child of it's parent then,
-            // the right subtree of the toBeDeleted is going to be the left subtree of it's parent.
-            if(toBeDeleted == toBeDeleted->parent->children[0])
-            {
-                toBeDeleted->parent->children[0] = temp;
-            }
-            // if the toBeDeleted node is the right child of it's parent then,
-            // the right subtree of the toBeDeleted is going to be the right subtree of it's parent.
-            else 
-            {
-                toBeDeleted->parent->children[1] = temp;
-            }
-
-            free(toBeDeleted->data);
-            free(toBeDeleted->children);
+            // it's a righty node that it has only the right child but not the right one.
+            // if it's the left child of it's parent.
+            if(toBeDeleted->parent->children[0] == toBeDeleted) toBeDeleted->parent->children[0] = toBeDeleted->children[1];
+            // if it's the right child of it's parent.
+            else if(toBeDeleted->parent->children[1] == toBeDeleted) toBeDeleted->parent->children[1] = toBeDeleted->children[1];
+            
+            // free the data payload of the node.
+            custom_free(data);
+            // free the node data structure.
             free(toBeDeleted);
+
         }
-        // if the toBeDeleted has both subtrees.
-        else
+        else if(toBeDeleted->children[0] != NULL && toBeDeleted != NULL)
         {
-            // find the minimum node in the right subtree.
-            struct TreeNode* temp = findMin(toBeDeleted->children[1]);
-            // set the parent of the mininum node to the parent of the toBeDeleted
-            // node.
-            temp->parent = toBeDeleted->parent;
-            if(toBeDeleted == toBeDeleted->parent->children[0])
+            // now it for sure has two subtrees, left and right.
+            if(mode == 1)
             {
-                toBeDeleted->parent->children[0] = temp;
-            }
-            else 
-            {
-                toBeDeleted->parent->children[1] = temp;
-            }
-            temp->children[0] = toBeDeleted->children[0];
-            temp->children[1] = toBeDeleted->children[1];
+                // get the minimum node of the rigth subtree.
+                // note: min node cannot have a left node but can have a right node.
+                struct BstNode* min = findMin(toBeDeleted->children[1]);
+                // if min has a right node set the parent of it the parent of min.
+                // as it must be moved inpalce of toBeDeleted.
+                if(min->children[1]) 
+                {
+                    min->parent->children[0] = min->children[1];
+                    min->children[1]->parent = min->parent;
+                } else {
+                    // min is a leaf node, we will set the parent of min to
+                    // the parent of toBeDeleted
+                    min->parent->children[0] = NULL;
+                    min->parent = toBeDeleted->parent;
+                    // make sure that min is not a direct child of toBeDeleted.
+                    if (min != toBeDeleted->children[1]) {
+                        // set the children of min to the children of toBeDeleted.
+                        min->children[0] = toBeDeleted->children[0];
+                        min->children[1] = toBeDeleted->children[1];
+                    } else {
+                        min->children[0] = toBeDeleted->children[0];
+                    }
+                }
 
-            free(toBeDeleted->data);
-            free(toBeDeleted->children);
+            }
+            else if(mode == -1)
+            {
+                // get the maximum node of the left subtree.
+                // note: max node cannot have a right node but can have a left node.
+                struct BstNode* max = findMax(toBeDeleted->children[0]);
+                // if max has a left node set the parent of it to the parent of max.
+                // as it must be moved inpalce of toBeDeleted.
+                if(max->children[0]) 
+                {
+                    max->parent->children[1] = max->children[0];
+                    max->children[0]->parent = max->parent;
+                } else {
+                    // max is a leaf node, we will set the parent of max to
+                    // the parent of toBeDeleted
+                    max->parent->children[1] = NULL;
+                    max->parent = toBeDeleted->parent;
+                    // make sure that max is not a direct child of toBeDeleted.
+                    if (max != toBeDeleted->children[0]) {
+                        // set the children of max to the children of toBeDeleted.
+                        max->children[0] = toBeDeleted->children[0];
+                        max->children[1] = toBeDeleted->children[1];
+                    } else {
+                        max->children[1] = toBeDeleted->children[1];
+                    }
+                }
+
+            }
+            // free the data payload of the node.
+            custom_free(data);
+            // free the node data structure.
             free(toBeDeleted);
+               
         }
+
+        return ;
     }
 }
-
-
-struct TreeNode* findMax(struct TreeNode* bst)
+struct BstNode* findMax(struct BstNode* bst)
 {
-    // the maximum node is the right most node in the leaf series of the bst.
-    
+    // the maximum node is the right most node in the leaf series of the bst
+    // that is also a right descendant of it's parent.
+
     // there is no Point in finding the max node in a null bst.
     FAIL_IF_NULL(bst);
     // this flag is used to track whehter we found the max or not.
     int8_t notFound = 1;
     // this variable is gonna hold the maximum node after looping.
-    struct TreeNode* max = bst;
+    struct BstNode* max = bst;
     while(notFound)
     {
         if(max->children[1])
@@ -295,7 +234,7 @@ struct TreeNode* findMax(struct TreeNode* bst)
     return max;
 }
 
-struct TreeNode* findMin(struct TreeNode* bst)
+struct BstNode* findMin(struct BstNode* bst)
 {
     // the minimum node is the left most node in the leaf series of the bst.
     
@@ -304,7 +243,7 @@ struct TreeNode* findMin(struct TreeNode* bst)
     // this flag is used to track whehter we found the min or not.
     int8_t notFound = 1;
     // this variable is gonna hold the minimum node after looping.
-    struct TreeNode* min = bst;
+    struct BstNode* min = bst;
     while(notFound)
     {
         if(min->children[0])

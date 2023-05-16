@@ -34,34 +34,42 @@ struct TreeNode {
  **/
 struct TreeNode* makeTreeNode(struct TreeNode* parent, void* data, uint32_t degree );
 
+
+
+/**
+ * Purpose: this function is used to free the whole tree with datapayload using custom_free.
+ * @root    the root node of the tree structure that we want to free.
+ * @custome_free    the custom freeing function for the datapayload.
+ *
+ */
+void freeTree(struct TreeNode* treeNode, void(*custom_free)(void* data));
+
 /**
  * Purpose: traverse the given tree iteratively by level.
  * @root        the root node of the tree.
- * @hook        is the function that gets called with the data payload of the node.
+ * @hook        is the function that gets called with the node.
  * */
 void BreadthTraverse(struct TreeNode* root, void (*hook)(struct TreeNode* data) );
 
 /**
  * Purpose: traverse the given tree iteratively by depth in an preorder way.
  * @root        the root node of the tree.
- * @hook        is the function that gets called with the data payload of the node.
+ * @hook        is the function that gets called with the node.
  * */
 void PreOrderTraverse(struct TreeNode* root, void (*hook)(struct TreeNode* data) );
 
 /**
  * Purpose: traverse the given tree iteratively by depth in an inorder way.
  * @root        the root node of the tree.
- * @hook        is the function that gets called with the data payload of the node.
+ * @hook        is the function that gets called with the node.
  * */
 void InOrderTraverse(struct TreeNode* root, void (*hook)(struct TreeNode* data) );
 
 /**
  * Purpose: traverse the given tree iteratively by depth in a postorder way.
  * @root        the root node of the tree.
- * @hook        is the function that gets called with the data payload of the node.
+ * @hook        is the function that gets called with the node.
  * */
 void PostOrderTraverse(struct TreeNode* root, void (*hook)(struct TreeNode* data) );
-
-
-
 #endif
+

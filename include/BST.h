@@ -1,22 +1,39 @@
 #ifndef BST_H
 #define BST_H
-#include "Tree.h"
+#include <stdint.h>
+/**
+ * Purpose: this sturcture is used to represent a binary search tree
+ *          node.
+ * @children    is an array of 2 pointer to bstNodes the left and the right.
+ * @data        is the data payload of the node.
+ * @parent      is the parent of the node.
+ * */
+struct BstNode 
+{
+    struct BstNode* children[2];
+    void* data;
+    struct BstNode* parent;
+};
 
 /**
  * Purpose: this function is used to make a binary search tree.
  * @data    the data payload of the root node.
  * @return  return the root of the to be created binary search tree.
  */
-struct TreeNode *makeBST(void *data);
+struct BstNode *makeBST(void *data);
 
 /**
  * Purpose: this function is used to add an element to a binary search tree.
- * @bst     binary search tree to operate on.
+ * @root    binary search tree to operate on.
  * @data    pointer to the data element.
  * @compare this is function pointer to compare the data payload of different
  * nodes.
+ *          characteristic of the compare function.
+ *          1 means data1 > data2
+ *          0 means data1 = data2
+ *          -1 means data1 < data2
  */
-void addElementToBST(struct TreeNode *bst, void *data,
+void addElementToBST(struct BstNode *root, void *data,
                      int8_t (*compare)(void *data1, void *data2));
 
 /**
@@ -25,8 +42,12 @@ void addElementToBST(struct TreeNode *bst, void *data,
  * @bst     the binary search tree to search at.
  * @data    the data element to search.
  * @return  pointer to the node that hold the searched data item.
+ *          characteristic of the compare function.
+ *          +1  means data1 > data2
+ *          0  means data1 = data2
+ *          -1 means data1 < data2
  * */
-struct TreeNode* searchElementBST(struct TreeNode *bst, void *data,
+struct BstNode* searchElementBST(struct BstNode *bst, void *data,
                         int8_t (*compare)(void *data1, void *data2));
 
 /**
@@ -36,17 +57,21 @@ struct TreeNode* searchElementBST(struct TreeNode *bst, void *data,
  * @data    pointer to the data element to be removed.
  * @compare this is function pointer to compare the data payload of different
  * nodes.
+ *          characteristic of the compare function.
+ *          +1  means data1 > data2
+ *          0  means data1 = data2
+ *          -1 means data1 < data2
  */
-void deleteElementFromBST(struct TreeNode *bst, void *data,
-                          int8_t (*compare)(void *data1, void *data2));
+void deleteElementFromBST(struct BstNode *bst, void *data,
+                          int8_t (*compare)(void *data1, void *data2), int8_t mode, void (*custom_free)(void* data));
 /**
  * Purpose: this function is used to find the maximum node of a binary search tree
  * @bst     is the binary search tree to be searched.
  */
-struct TreeNode* findMax(struct TreeNode* bst);
+struct BstNode* findMax(struct BstNode* bst);
 /**
  * Purpose: this function is used to find the minimum node of a binary search tree
  * @bst     is the binary search tree to be searched.
  */
-struct TreeNode* findMin(struct TreeNode* bst);
+struct BstNode* findMin(struct BstNode* bst);
 #endif

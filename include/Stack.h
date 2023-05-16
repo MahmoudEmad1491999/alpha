@@ -15,6 +15,17 @@ struct Stack
     const uint32_t * const len;
 };
 
+/**
+ * Purpose: this function is used to make a new Stack object.
+ * @freeElement     the function used to free the data object.
+ */
+struct Stack* makeStack(void (*freeElement)());
+/**
+ * Purpose: this function is used to free the stack object and the remaining underlying
+ *          list items.
+ * @stack   the stack to be freed.
+ */
+void freeStack(struct Stack* stack);
 
 /**
  * Purpose: this function is used to push the data object pointed by
@@ -29,16 +40,5 @@ void Push(struct Stack* stack, void* data);
  * @stack   is the stack to pop out of.
  * @return  pointer to the data object on the head of the stack.
  */
-void* Pop(struct Stack* stack);
-/**
- * Purpose: this function is used to make a new Stack object.
- * @freeElement     the function used to free the data object.
- */
-struct Stack* makeStack(void (*freeElement)());
-/**
- * Purpose: this function is used to free the stack object and the remaining underlying
- *          list items.
- * @stack   the stack to be freed.
- */
-void freeStack(struct Stack* stack);
+void const* Pop(struct Stack* stack);
 #endif

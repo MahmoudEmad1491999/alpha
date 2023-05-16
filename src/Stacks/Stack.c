@@ -26,7 +26,7 @@ void Push(struct Stack* stack, void* data)
     SLListAppend(stack->list, data);
 }
 
-void* Pop(struct Stack *stack) {
+void const* Pop(struct Stack *stack) {
     // check if the stack is null.
     FAIL_IF_NULL(stack);
     // check if the stack is empty, and return -1 if so.

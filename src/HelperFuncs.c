@@ -13,13 +13,16 @@ void* xmalloc(size_t size)
 
 void* xcalloc(uint32_t nmemb, size_t size)
 {
-    void* x = calloc(nmemb, size);
-    if(!x)
-    {
-        fprintf(stderr, "calloc failed!");
-        exit(-1);
+    if(nmemb){
+        void* x = calloc(nmemb, size);
+        if(!x)
+        {
+            fprintf(stderr, "calloc failed!");
+            exit(-1);
+        }
+        return x;
     }
-    return x;
+    return NULL;
 }
 
 

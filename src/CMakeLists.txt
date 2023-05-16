@@ -16,19 +16,23 @@ target_link_libraries(AlphaList HelperFuncs)
 add_library(AlphaStack OBJECT Stacks/Stack.c)
 # add the helper functions target as a dependency to the Stack Target.
 target_link_libraries(AlphaStack HelperFuncs)
+target_link_libraries(AlphaStack AlphaList)
 
 # create the Queue Target from the Queue.c file.
 add_library(AlphaQueue OBJECT Queues/Queue.c)
 # add the HelperFunctions Target as a dependency to the Queue Target.
 target_link_libraries(AlphaQueue HelperFuncs)
+target_link_libraries(AlphaQueue AlphaList)
 
 # create the TreeRecu Target from the Tree.c file.
-add_library(AlphaTreeRecu OBJECT Trees/Tree.c)
+add_library(AlphaTree OBJECT Trees/Tree.c)
 # add the HelperFunctions Target as a dependency to the TreeRecu Target.
-target_link_libraries(AlphaTreeRecu HelperFuncs)
+target_link_libraries(AlphaTree HelperFuncs)
+target_link_libraries(AlphaTree AlphaStack)
+target_link_libraries(AlphaTree AlphaQueue)
 
 # create the TreeIter Target from the _Tree.c file.
-add_library(AlphaTreeIter OBJECT Trees/_Tree.c)
+#add_library(AlphaTreeIter OBJECT Trees/_Tree.c)
 # add the HelperFunctions Target as a dependency to the TreeIter Target.
-target_link_libraries(AlphaTreeIter HelperFuncs)
+#target_link_libraries(AlphaTreeIter HelperFuncs)
 

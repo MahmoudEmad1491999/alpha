@@ -3,65 +3,93 @@
 #include "Macros.h"
 #include <stdlib.h>
 
-DirectArray *makeDirectArray(uint32_t len, uint32_t element_size,
-                       void (*hook)(void *)) {
-    DirectArray *array = xmalloc(sizeof(DirectArray));
-    array->head = xcalloc(len > 0 ? len : 10, element_size);
-    array->len = len > 0 ? len : 10;
-    FAIL_IF_ZERO(element_size);
-    array->element_size = element_size;
-    array->hook = hook;
+struct Array *makeArray(uint32_t size, void (*custom_free)(void *)) {
+    struct Array *array = xmalloc(sizeof(struct Array));
+    // if len is zero, first is going be NULL.
+    array->first = xcalloc(size, sizeof(void*));
+    array->size = size;
+    array->custom_free = custom_free ? custom_free : free;
+
     return array;
 }
 
-void freeDirectArray(DirectArray *array) {
-    if (array) {
-        if(array->hook)
-        {
-            for (uint32_t index = 0; index < array->len; index++) {
-                array->hook(array->head + index * array->element_size);
+void freeArray(struct Array *array) {
+    if(array) {
+        for (uint32_t index = 0; index < array->size; index++) {
+            if(array->first[index])
+            {
+                // free individual elements if present.
+                array->custom_free(array->first[index]);
             }
         }
-        free(array->head);
+       
+        // free the array of pointers.
+        free(array->first);
+
+        // free the whole structure.
         free(array);
     }
 }
 
-void *DirectArrayAt(DirectArray *array, uint32_t index) {
+void const* ArrayAtGet(struct Array *array, uint32_t index) {
     FAIL_IF_NULL(array);
-    FAIL_IF_GREATER_OR_EQUAL(index, array->len);
-    return array->head + index * array->element_size;
-}
-
-
-IndirectArray* makeIndirectArray(uint32_t len, uint32_t element_size, void (*freeElement)(void*))
-{
-    IndirectArray* array = xmalloc(sizeof(IndirectArray));
-    array->head = xcalloc(len > 0 ? len : 10, sizeof(void*));
-    array->len = len > 0 ? len : 10;
-    FAIL_IF_ZERO(element_size);
-    array->element_size = element_size;
-    array->freeElement = freeElement ? freeElement: free;
-    return array;
-}
-
-void freeIndirectArray(IndirectArray* array)
-{
-    if(array)
+    // if index is in bound.
+    if(index < array->size)
     {
-        for(int index = 0; index < array->len; index++)
+        return array->first[index];
+    }
+    else {
+        // if index is out of bound.
+        if(array->size)
         {
-            array->freeElement(*(array->head+index));
+            // size is not null so the new size can be calcualted by new_size = old_size * resizing factor ;
+            // resizing factor = ((index+1) / old size)+ 1;
+            array->first = xrealloc(array->first, sizeof(void*) * array->size * (((index+1)/array->size) + 1));
+            array->size = array->size * ((index+1)/array->size) + 1;
         }
-        free(array->head);
-        free(array);
+        else 
+        {
+            // size is zero so new size = index + 1; and that element is going be the last.
+            array->first = xcalloc(index+1 , sizeof(void*) );
+            array->size = index+1;
+        }
+        return NULL;
     }
 }
 
-void** IndirectArrayAt(IndirectArray* array, uint32_t index)
+void ArrayAtSet(struct Array *array, uint32_t index, void *new_element)
 {
-    FAIL_IF_NULL(array);
-    FAIL_IF_GREATER_OR_EQUAL(index, array->len);
+    // element is in bound.
+    if(index < array->size)
+    {
+        // if the old element is not null we free it first.
+        if(array->first[index])
+        {
+            array->custom_free(array->first[index]);
 
-    return array->head + index;
+        }
+        // then we set that index to the new element.
+            array->first[index] = new_element;
+    }
+    else 
+    {
+        // if index is out of bound.
+        if(array->size)
+        {
+            // size is not zero. we resize.
+            // the new size = old size * resize_factor.
+            // resize_factor = ((index + 1) / old_size) + 1
+            array->first = xrealloc(array->first, sizeof(void*) * array->size * ((index+1)/array->size + 1));
+            array->size = array->size * ((index+1)/array->size) + 1;
+        }
+        else 
+        {
+            // size is zero, then new_size = index + 1.
+            array->first = xcalloc(index+1 , sizeof(void*) );
+            array->size = index+1;
+        }
+        // after resizing we set that index to the new element.
+        array->first[index] = new_element;
+    }
 }
+

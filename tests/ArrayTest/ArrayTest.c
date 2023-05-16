@@ -4,21 +4,17 @@
 
 int main(int argc, char** argv)
 {
-    /*
-    DirectArray* array = makeDirectArray(10,sizeof(int32_t), NULL);
-    *( (int32_t*)DirectArrayAt(array, 0)) = 100;
-    printf("%d\n", *((int32_t*)DirectArrayAt(array, 0)));
-    freeDirectArray(array);
-     */
-    
+    struct Array* array = makeArray(2,NULL);
+    int* x = malloc(sizeof(int)), *y = malloc(sizeof(int));
+    *x = 100; *y = 200;
+    printf("%p\n", array->first);
+    printf("%u\n", array->size);
+    ArrayAtSet(array, 0, x); 
+    ArrayAtSet(array, 1, y); 
 
-    IndirectArray* array = makeIndirectArray(10, sizeof(int32_t),NULL);
-    int32_t* t = xmalloc(sizeof(int32_t));
-    *t = 100;
-    *((int32_t**)IndirectArrayAt(array, 0)) = t;
-    
-    printf("%d\n", *(*((int32_t**)(IndirectArrayAt(array,0)))));
-    freeIndirectArray(array);
-    printf("Hello there\n");
-    return 0;
+    printf("%d\n", *((int*) (array->first[0])));
+
+    printf("%d\n", *((int*) (ArrayAtGet(array, 0))));
+    freeArray(array);
+
 }

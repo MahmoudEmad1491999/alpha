@@ -21,6 +21,41 @@ struct TreeNode *makeTreeNode(struct TreeNode* parent,void *data, uint32_t degre
     return treeNode;
 }
 
+void freeTree(struct TreeNode *root, void (*custom_free)(void *))
+{
+    if(root)
+    {
+        struct Queue* toBeFreed = makeQueue(free);
+
+        Enqueue(toBeFreed, root);
+        
+        // we will keep looping until all the entries in the Queue is removed.
+        // those entries correspond, in an orderd way, to the levels of the tree.
+        while(*(toBeFreed->len))
+        {
+            // first: dequeue a node from the tree.
+            struct TreeNode* temp = Dequeue(toBeFreed);
+            // second: add the children of the dequeued node to the toBeFreed queue.
+            for(int index = 0; index < temp->degree;index++)
+            {
+                // first check if the child is present.
+                if(temp->children[index])
+                {
+                    Enqueue(toBeFreed, temp->children[index]);
+                }
+            }
+            // third: free the data payload of the dequeued node using the custom_free function..
+            custom_free(temp->data);
+            // forth: free the children array of the queued array.
+            free(temp->children);
+            // fifth: free the dequeued node.
+            free(temp);
+        }
+
+        freeQueue(toBeFreed);
+    }
+}
+
 // level based traversal.
 void BreadthTraverse(struct TreeNode *root, void (*hook)(struct TreeNode *)) {
     if (root) {
@@ -30,11 +65,11 @@ void BreadthTraverse(struct TreeNode *root, void (*hook)(struct TreeNode *)) {
         Enqueue(toBeTraversed, root);
         struct TreeNode *temp;
         // while the queue is not empty 
-        while (*toBeTraversed->len) {
+        while (*(toBeTraversed->len)) {
             // dequeue the element from the queue which is also the next inline 
             // to be traversed by the hook function.
             temp = Dequeue(toBeTraversed);
-            // call the hook function on the next in line node data payload.
+            // call the hook function on the next in line node.
             hook(temp);
             // loop on the children of the next in line node,
             // if they exist add them to the queue if not skip.
@@ -52,7 +87,7 @@ void BreadthTraverse(struct TreeNode *root, void (*hook)(struct TreeNode *)) {
 // preorder traversal of the tree nodes.
 void PreOrderTraverse(struct TreeNode *root, void (*hook)(struct TreeNode *)) {
     if (root) {
-        // call the hook function on the data payload of the root node.
+        // call the hook function on the root node.
         hook(root);
         // for each child node call the PreOrderTraverse method,
         // of course if the child is not NULL.
@@ -99,3 +134,4 @@ void InOrderTraverse(struct TreeNode *root, void (*hook)(struct TreeNode *)) {
         }
     }
 }
+
