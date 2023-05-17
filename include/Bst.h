@@ -8,12 +8,11 @@
  * @data        is the data payload of the node.
  * @parent      is the parent of the node.
  * */
-struct BstNode 
-{
-    struct BstNode* left;
-    struct BstNode* right;
-    void* data;
-    struct BstNode* parent;
+struct BstNode {
+    struct BstNode *left;
+    struct BstNode *right;
+    void *data;
+    struct BstNode *parent;
 };
 
 /**
@@ -48,8 +47,8 @@ void addElementToBST(struct BstNode *root, void *data,
  *          0  means data1 = data2
  *          -1 means data1 < data2
  * */
-struct BstNode* searchElementBST(struct BstNode *bst, void *data,
-                        int8_t (*compare)(void *data1, void *data2));
+struct BstNode *searchElementBST(struct BstNode *bst, void *data,
+                                 int8_t (*compare)(void *data1, void *data2));
 
 /**
  * Pupose:  this function is used to delete an element from the binary
@@ -64,15 +63,18 @@ struct BstNode* searchElementBST(struct BstNode *bst, void *data,
  *          -1 means data1 < data2
  */
 void deleteElementFromBST(struct BstNode *bst, void *data,
-                          int8_t (*compare)(void *data1, void *data2), int8_t mode, void (*custom_free)(void* data));
+                          int8_t (*compare)(void *data1, void *data2),
+                          int8_t mode, void (*custom_free)(void *data));
 /**
- * Purpose: this function is used to find the maximum node of a binary search tree
+ * Purpose: this function is used to find the maximum node of a binary search
+ * tree
  * @bst     is the binary search tree to be searched.
  */
-struct BstNode* findMax(struct BstNode* bst);
+struct BstNode *findMax(struct BstNode *bst);
 /**
- * Purpose: this function is used to find the minimum node of a binary search tree
+ * Purpose: this function is used to find the minimum node of a binary search
+ * tree
  * @bst     is the binary search tree to be searched.
  */
-struct BstNode* findMin(struct BstNode* bst);
+struct BstNode *findMin(struct BstNode *bst);
 #endif

@@ -1,4 +1,4 @@
-#include "BST.h"
+#include "Bst.h"
 #include "HelperFuncs.h"
 #include "Macros.h"
 
