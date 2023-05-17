@@ -10,7 +10,8 @@
  * */
 struct BstNode 
 {
-    struct BstNode* children[2];
+    struct BstNode* left;
+    struct BstNode* right;
     void* data;
     struct BstNode* parent;
 };
