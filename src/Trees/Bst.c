@@ -1,14 +1,37 @@
 #include "Bst.h"
 #include "HelperFuncs.h"
 #include "Macros.h"
+#include "Queue.h"
 
-struct BstNode *makeBSTNode(void *data) {
+struct BstNode *makeBST(void *data) {
     struct BstNode *root = xmalloc(sizeof(struct BstNode));
     root->parent = NULL;
     root->data = data;
     root->left = NULL;
     root->right = NULL;
     return root;
+}
+
+
+void freeBst(struct BstNode *root, void (*custom_free)(void* data))
+{
+    if(root)
+    {
+        struct Queue* toBeFreed = makeQueue(free);
+        Enqueue(toBeFreed, root);
+        // we will use root as a temp.
+        while(*(toBeFreed->len))
+        {
+            root = Dequeue(toBeFreed);
+            if(root->left) Enqueue(toBeFreed, root->left);
+            if(root->right) Enqueue(toBeFreed, root->right);
+
+            custom_free(root->data);
+            free(root);
+        }
+        freeQueue(toBeFreed);
+    }
+    return;
 }
 
 void addElementToBST(struct BstNode *bst, void *data,
@@ -29,7 +52,7 @@ void addElementToBST(struct BstNode *bst, void *data,
             addElementToBST(bst->right, data, compare);
         } else // if the right child is not present.
         {
-            struct BstNode *new_node = makeBSTNode(data);
+            struct BstNode *new_node = makeBST(data);
             new_node->parent = bst;
             bst->right = new_node;
         }
@@ -42,7 +65,7 @@ void addElementToBST(struct BstNode *bst, void *data,
             addElementToBST(bst->left, data, compare);
         } else // if the right child is not present.
         {
-            struct BstNode *new_node = makeBSTNode(data);
+            struct BstNode *new_node = makeBST(data);
             new_node->parent = bst;
             bst->left = new_node;
         }

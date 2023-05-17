@@ -15,3 +15,5 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests/StackTest)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests/QueueTest)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests/TreeTest)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests/BstTest)

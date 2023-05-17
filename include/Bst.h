@@ -1,6 +1,8 @@
 #ifndef BST_H
 #define BST_H
 #include <stdint.h>
+#include "Queue.h"
+
 /**
  * Purpose: this sturcture is used to represent a binary search tree
  *          node.
@@ -21,6 +23,13 @@ struct BstNode {
  * @return  return the root of the to be created binary search tree.
  */
 struct BstNode *makeBST(void *data);
+
+/**
+ * Purpose: this function is used to free the whole datastructure and the data associated with,
+ *          each node.
+ * @root    is pointer to the root of the binary search tree.
+ */
+void freeBst(struct BstNode* root, void (*custom_free)(void* data));
 
 /**
  * Purpose: this function is used to add an element to a binary search tree.

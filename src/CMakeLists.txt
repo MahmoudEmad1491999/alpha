@@ -35,3 +35,4 @@ target_link_libraries(AlphaTree PUBLIC AlphaQueue)
 add_library(AlphaBst Trees/Bst.c)
 # add the HelperFuncs Target as a depenecy to Bst Target.
 target_link_libraries(AlphaBst PUBLIC HelperFuncs)
+target_link_libraries(AlphaBst PUBLIC AlphaQueue)
